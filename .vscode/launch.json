@@ -1,0 +1,130 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "BetaGame (Debug)",
+			"request": "launch",
+			"preLaunchTask": "BetaGame Win64 Debug Build",
+			"program": "C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\Binaries\\Win64\\BetaGame-Win64-Debug.exe",
+			"args": [
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGame (DebugGame)",
+			"request": "launch",
+			"preLaunchTask": "BetaGame Win64 DebugGame Build",
+			"program": "C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\Binaries\\Win64\\BetaGame-Win64-DebugGame.exe",
+			"args": [
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGame (Development)",
+			"request": "launch",
+			"preLaunchTask": "BetaGame Win64 Development Build",
+			"program": "C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\Binaries\\Win64\\BetaGame.exe",
+			"args": [
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGame (Shipping)",
+			"request": "launch",
+			"preLaunchTask": "BetaGame Win64 Shipping Build",
+			"program": "C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\Binaries\\Win64\\BetaGame-Win64-Shipping.exe",
+			"args": [
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGame (Test)",
+			"request": "launch",
+			"preLaunchTask": "BetaGame Win64 Test Build",
+			"program": "C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\Binaries\\Win64\\BetaGame-Win64-Test.exe",
+			"args": [
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGameEditor (Debug)",
+			"request": "launch",
+			"preLaunchTask": "BetaGameEditor Win64 Debug Build",
+			"program": "E:\\Unreal\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
+			"args": [
+				"C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\BetaGame.uproject",
+				"-debug"
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGameEditor (DebugGame)",
+			"request": "launch",
+			"preLaunchTask": "BetaGameEditor Win64 DebugGame Build",
+			"program": "E:\\Unreal\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"args": [
+				"C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\BetaGame.uproject",
+				"-debug"
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "BetaGameEditor (Development)",
+			"request": "launch",
+			"preLaunchTask": "BetaGameEditor Win64 Development Build",
+			"program": "E:\\Unreal\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"args": [
+				"C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\BetaGame.uproject"
+			],
+			"cwd": "E:\\Unreal\\UE_4.19",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "E:\\Unreal\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "Generate Project Files",
+			"type": "clr",
+			"request": "launch",
+			"program": "E:\\Unreal\\UE_4.19\\Engine\\Binaries\\DotNET\\UnrealBuildTool.exe",
+			"console": "externalTerminal",
+			"args": [
+				"-projectfiles",
+				"-vscode",
+				"-project=\"C:\\Users\\Johnara\\Documents\\Unreal Projects\\BetaGame\\BetaGame.uproject\"",
+				"-game",
+				"-engine"
+			],
+			"internalConsoleOptions": "openOnSessionStart",
+			"cwd": "E:\\Unreal\\UE_4.19"
+		}
+	]
+}
