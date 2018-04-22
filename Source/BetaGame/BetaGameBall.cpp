@@ -143,6 +143,9 @@ float delta_sum = 0;
 
 void ABetaGameBall::Tick(float DeltaTime)
 {
+
+	Super::Tick(DeltaTime);
+
 	if (bCanJump) delta_sum += DeltaTime;
 	if (delta_sum > 1)
 	{
@@ -152,7 +155,19 @@ void ABetaGameBall::Tick(float DeltaTime)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("STAMINA : %d"), stamina));
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("DELTA TIME: %f"), DeltaTime);
-	Super::Tick(DeltaTime); // Call parent class tick function
+
+	FVector Tilt;
+	FVector RotationRate;
+	FVector Gravity;
+	FVector Acceleration;
+
+	playercontroller->GetInputMotionState(Tilt, RotationRate, Gravity, Acceleration);
+	//playercontroller->GetInputVectorKeyState()
+
+	UE_LOG(LogTemp, Warning, TEXT("RotationRate X : %f / Y : %f / Z : %f"), RotationRate.X, RotationRate.Y, RotationRate.Z);
+	UE_LOG(LogTemp, Warning, TEXT("Gravity X : %f / Y : %f / Z : %f"), Gravity.X, Gravity.Y, Gravity.Z);
+	UE_LOG(LogTemp, Warning, TEXT("Acceleration X : %f / Y : %f / Z : %f"), Acceleration.X, Acceleration.Y, Acceleration.Z);
+
 }
 
 void ABetaGameBall::Jump()

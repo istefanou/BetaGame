@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Components/InputComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "BetaGameBall.generated.h"
@@ -25,6 +27,7 @@ class ABetaGameBall : public APawn
 
 public:
 	ABetaGameBall();
+	APlayerController* playercontroller = UGameplayStatics::GetPlayerController(this->GetWorld(), 0);
 
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
