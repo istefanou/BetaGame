@@ -51,6 +51,11 @@ protected:
 
 	void BoostRight();
 
+	void MoveRight(float Val);
+
+		void MoveForward(float Val);
+
+
 	void BoostLeft(); 
 
 

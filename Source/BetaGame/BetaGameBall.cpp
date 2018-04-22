@@ -11,6 +11,7 @@
 #include "Runtime/Engine/Classes/GameFramework/PawnMovementComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/Character.h"
 
+
 ABetaGameBall::ABetaGameBall()
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMesh(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
@@ -56,6 +57,10 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 {
 	// set up gameplay key bindings
 	PlayerInputComponent->BindVectorAxis("Tilt", this, &ABetaGameBall::OnRotationInput);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::MoveForward);
+
+
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABetaGameBall::Jump);
 	PlayerInputComponent->BindAction("BoostRight", IE_Pressed, this, &ABetaGameBall::BoostRight);
@@ -92,6 +97,18 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 
     const FVector Torque = FVector(actual_x*RollTorque*4, actual_y*RollTorque*4, 0.f);
     Ball->AddTorqueInRadians(Torque);
+}
+
+void ABetaGameBall::MoveRight(float Val)
+{
+	const FVector Torque = FVector(-1.f * Val * RollTorque, 0.f, 0.f);
+	Ball->AddTorqueInRadians(Torque);
+}
+
+void ABetaGameBall::MoveForward(float Val)
+{
+	const FVector Torque = FVector(0.f, Val * RollTorque, 0.f);
+	Ball->AddTorqueInRadians(Torque);
 }
 
 void ABetaGameBall::BoostRight() //
