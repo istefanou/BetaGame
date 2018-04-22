@@ -48,7 +48,8 @@ ABetaGameBall::ABetaGameBall()
 	JumpImpulse = 350000.0f;
 	DashImpulse = 3500000.0f;
 	bCanJump = true; // Start being able to jump
-	stamina = 3;
+	max_stamina = 3;
+	current_stamina = 3;
 	
    
 }
@@ -81,34 +82,39 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 
     //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Rotation is y_rot: %f x_rot: %f roll_left_rot: %f"), Input.X, Input.Y, Input.Z));
 
+	if (bCanJump) {
+		float x_rad = 1 * Input.X;
+		float y_rad = 1 * Input.Y;
 
-    float x_rad = 1 * Input.X;
-    float y_rad = 1 * Input.Y;
+		float actual_x = x_rad;
+		if (x_rad < 0.1 && x_rad > -0.1 || !bCanJump) {
+			actual_x = 0;
+		}
 
-    float actual_x= x_rad;
-    if (x_rad < 0.1 && x_rad > -0.1 || !bCanJump) {
-        actual_x = 0;
-    }
+		float actual_y = y_rad;
+		if (y_rad < 0.1 && y_rad > -0.1 || !bCanJump) {
+			actual_y = 0;
+		}
 
-    float actual_y = y_rad;
-    if (y_rad < 0.1 && y_rad > -0.1 || !bCanJump) {
-        actual_y = 0;
-    }
-
-    const FVector Torque = FVector(actual_x*RollTorque*4, actual_y*RollTorque*4, 0.f);
-    Ball->AddTorqueInRadians(Torque);
+		const FVector Torque = FVector(actual_x*RollTorque * 4, actual_y*RollTorque * 4, 0.f);
+		Ball->AddTorqueInRadians(Torque);
+	}
 }
 
 void ABetaGameBall::MoveRight(float Val)
 {
+	if (bCanJump) {
 	const FVector Torque = FVector(-1.f * Val * RollTorque, 0.f, 0.f);
 	Ball->AddTorqueInRadians(Torque);
+}
 }
 
 void ABetaGameBall::MoveForward(float Val)
 {
-	const FVector Torque = FVector(0.f, Val * RollTorque, 0.f);
-	Ball->AddTorqueInRadians(Torque);
+	if (bCanJump) {
+		const FVector Torque = FVector(0.f, Val * RollTorque, 0.f);
+		Ball->AddTorqueInRadians(Torque);
+	}
 }
 
 void ABetaGameBall::BoostRight() //
@@ -144,10 +150,10 @@ float delta_sum = 0;
 void ABetaGameBall::Tick(float DeltaTime)
 {
 	if (bCanJump) delta_sum += DeltaTime;
-	if (delta_sum > 1)
+	if (delta_sum > 1 && bCanJump)
 	{
-		if (stamina < 3)
-			stamina++;
+		if (current_stamina < max_stamina)
+			current_stamina++;
 		delta_sum -= 1;
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("STAMINA : %d"), stamina));
 	}
@@ -158,12 +164,12 @@ void ABetaGameBall::Tick(float DeltaTime)
 void ABetaGameBall::Jump()
 {
 
-	if (stamina > 0)
+	if (current_stamina > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), stamina);
+		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), current_stamina);
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
-		stamina--;
+		current_stamina--;
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("NO STAMINA"));
