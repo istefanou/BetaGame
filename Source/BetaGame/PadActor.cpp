@@ -8,14 +8,19 @@
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 
 
+TArray<uint32> APadActor::IdList = TArray<uint32>({}, 0);
+
 // Sets default values
 APadActor::APadActor()
 {
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PadMesh(TEXT("/Game/MobileStarterContent/Shapes/Shape_Torus.Shape_Torus"));
 
+	PadInitialize();
 
-	Pad = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pad0"));
+	FString PadString = TEXT("Pad_" + FString::FromInt(ObjectID));
+	FName PadName = FName(*PadString);
+	Pad = CreateDefaultSubobject<UStaticMeshComponent>(PadName);
 	Pad->SetStaticMesh(PadMesh.Object);
 	//Pad->BodyInstance.SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
 	//Pad->SetSimulatePhysics(true);
@@ -27,7 +32,9 @@ APadActor::APadActor()
 	//RootComponent = Pad;
 
 	// Create the root CapsuleComponent to handle the pickup's collision
-	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BaseCapsuleComponent"));
+	FString BaseCollisionComponentString = TEXT("BaseCollisionComponent_Pad_" + FString::FromInt(ObjectID));
+	FName BaseCollisionComponentName = FName(*BaseCollisionComponentString);
+	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(BaseCollisionComponentName);
 	//BaseCollisionComponent->
 	//SetCollisionChannel (ECollisionResponse::ECR_Overlap); //SetCollisionResponseToAllChannels 
 
@@ -50,7 +57,7 @@ APadActor::APadActor()
 	// Disable Overlap Events on the Mesh
 	Pad->bGenerateOverlapEvents = true;
 
-	Pad->SetWorldScale3D(FVector(2));
+	//Pad->SetWorldScale3D(FVector(2));
 	bGenerateOverlapEventsDuringLevelStreaming = true;
 	//Pad->bGenerateOverlapEvents = true;
 
@@ -70,7 +77,6 @@ APadActor::APadActor()
 void APadActor::BeginPlay()
 {
 	Super::BeginPlay();
-	PadInitialize();
 }
 
 // Called every frame
@@ -103,5 +109,18 @@ void APadActor::PadAction1(AActor* SelfActor, AActor* OtherActor, FVector Normal
 void APadActor::PadInitialize()
 {
 	
+	CreateId();
+}
 
+void APadActor::CreateId()
+{
+	uint32 tempId = 0;
+	
+	while (IdList.Contains(tempId))
+	{
+		tempId++;
+	}
+
+	ObjectID = tempId;
+	IdList.Add(ObjectID);
 }

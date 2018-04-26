@@ -6,7 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 //#include "Engine/CollisionProfile.h"
 //#include "Engine/StaticMesh.h"
-//#include "Runtime/Engine/Classes/Engine/Engine.h"
+#include "Runtime/Engine/Classes/Engine/Engine.h"
 
 void AJumpPadActor::InitiatePadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -23,12 +23,17 @@ AJumpPadActor::AJumpPadActor()
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PadMesh(TEXT("/Game/MobileStarterContent/Shapes/Shape_Torus.Shape_Torus"));
 
+	PadInitialize();
 
-	Pad = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JumpPad0"));
+	FString JumpPadString = TEXT("JumpPad_" + FString::FromInt(ObjectID));
+	FName JumpPadName = FName(*JumpPadString);
+	Pad = CreateDefaultSubobject<UStaticMeshComponent>(JumpPadName);
 	Pad->SetStaticMesh(PadMesh.Object);
 
 	// Create the root CapsuleComponent to handle the pickup's collision
-	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("JumpBaseCapsuleComponent"));
+	FString BaseCollisionComponentString = TEXT("BaseCollisionComponent_JumpPad_" + FString::FromInt(ObjectID));
+	FName BaseCollisionComponentName = FName(*BaseCollisionComponentString);
+	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(BaseCollisionComponentName);
 
 	// Set the SphereComponent as the root component.
 	RootComponent = BaseCollisionComponent;
@@ -47,8 +52,8 @@ AJumpPadActor::AJumpPadActor()
 	// Disable Overlap Events on the Mesh
 	Pad->bGenerateOverlapEvents = true;
 
-	Pad->SetWorldScale3D(FVector(2));
-	BaseCollisionComponent->SetWorldScale3D(FVector(4));
+	//Pad->SetWorldScale3D(FVector(2));
+	//BaseCollisionComponent->SetWorldScale3D(FVector(4));
 	bGenerateOverlapEventsDuringLevelStreaming = true;
 
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.

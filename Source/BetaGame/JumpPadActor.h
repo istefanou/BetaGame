@@ -13,8 +13,6 @@ class BETAGAME_API AJumpPadActor : public APadActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	TArray<AActor*> UserQueue;
 
 	UFUNCTION()
 		void InitiatePadAction(UPrimitiveComponent *OverlappedComponent,

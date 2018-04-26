@@ -29,11 +29,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pad, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* Pad;
 
-	UPROPERTY()
-		TArray<uint32> IdList;
+	//UPROPERTY()
+	static TArray<uint32> IdList;
 	
 	UPROPERTY()
-		uint32 ObjectID;
+		uint32 ObjectID = 0;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Pad)
 	UCapsuleComponent* BaseCollisionComponent;
@@ -63,6 +63,8 @@ public:
 
 
 	UFUNCTION()
-		void PadInitialize();
+	void PadInitialize();
+
+	void CreateId();
 	
 };
