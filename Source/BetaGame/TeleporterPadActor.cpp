@@ -11,18 +11,40 @@
 void ATeleporterPadActor::InitiatePadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Boop Tele")));
+	FString fstring = OverlappedComponent->GetFName().ToString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, fstring);
+	fstring = OtherActor->GetFName().ToString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, fstring);
+	fstring = OtherComp->GetFName().ToString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, fstring);
+	if (ComponentsInTransit.Contains(OverlappedComponent))
+	{
+		return;
+	}
 	if (DestinationPad != nullptr) {
-		OtherComp->SetWorldTransform(DestinationPad->GetTransform());
+		DestinationPad->ComponentsInTransit.Add(OtherComp);
+		OtherActor->SetActorLocation(DestinationPad->GetActorLocation() + FVector(0, 0, 15));
+		//OtherComp->SetWorldLocation(DestinationPad->Pad->GetComponentLocation() + FVector(0, 0, 15));
+		//OtherComp->SetWorldLocation(DestinationPad->GetActorLocation() + FVector(0, 0, 15) );
+		//OtherComp->SetWorldTransform(DestinationPad->GetTransform() + FTransform( FVector(0, 0, 15) ));
 	}
 }
 
 void ATeleporterPadActor::FinishPadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
+	if (ComponentsInTransit.Contains(OverlappedComponent))
+	{
+		ComponentsInTransit.Remove(OverlappedComponent);
+	}
 }
 
 void ATeleporterPadActor::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Boop tele Edit")));
+	if (DestinationPad != nullptr)
+	{
+		DestinationPad->DestinationPad = this;
+	}
 }
 
 ATeleporterPadActor::ATeleporterPadActor()

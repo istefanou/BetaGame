@@ -14,8 +14,8 @@ class BETAGAME_API ATeleporterPadActor : public APadActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Pad)
-	APadActor* DestinationPad;
+	UPROPERTY(EditAnywhere, Category = TeleporterPad)
+	ATeleporterPadActor* DestinationPad;
 
 	UPROPERTY()
 	TArray<UPrimitiveComponent*> ComponentsInTransit;

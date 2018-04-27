@@ -26,7 +26,8 @@ protected:
 public:
 
 	/** StaticMesh used for the pad */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pad, meta = (AllowPrivateAccess = "true"))
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pad, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	class UStaticMeshComponent* Pad;
 
 	//UPROPERTY()
