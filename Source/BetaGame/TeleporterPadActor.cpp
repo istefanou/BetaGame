@@ -17,21 +17,30 @@ void ATeleporterPadActor::InitiatePadAction(UPrimitiveComponent * OverlappedComp
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, fstring);
 	fstring = OtherComp->GetFName().ToString();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, fstring);
+
+	if (OtherActor == DestinationPad || OtherActor == this)
+	{
+		return;
+	}
+
 	if (ComponentsInTransit.Contains(OverlappedComponent))
 	{
 		return;
 	}
+
 	if (DestinationPad != nullptr) {
 		DestinationPad->ComponentsInTransit.Add(OtherComp);
-		OtherActor->SetActorLocation(DestinationPad->GetActorLocation() + FVector(0, 0, 15));
-		//OtherComp->SetWorldLocation(DestinationPad->Pad->GetComponentLocation() + FVector(0, 0, 15));
-		//OtherComp->SetWorldLocation(DestinationPad->GetActorLocation() + FVector(0, 0, 15) );
-		//OtherComp->SetWorldTransform(DestinationPad->GetTransform() + FTransform( FVector(0, 0, 15) ));
+		OtherActor->SetActorLocation(DestinationPad->GetActorLocation() + FVector(0, 0, 150));
 	}
 }
 
 void ATeleporterPadActor::FinishPadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherActor == DestinationPad || OtherActor == this)
+	{
+		return;
+	}
+
 	if (ComponentsInTransit.Contains(OverlappedComponent))
 	{
 		ComponentsInTransit.Remove(OverlappedComponent);
