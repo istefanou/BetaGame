@@ -24,7 +24,9 @@ class ABetaGameBall : public APawn
 	class UCameraComponent* Camera;
 
 public:
+	
 	ABetaGameBall();
+
 
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
@@ -88,6 +90,20 @@ void BoostBackwards();
 
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+
+	UFUNCTION(BlueprintCallable)
+	void OnDeath(AActor* Act);
+
+	UFUNCTION(BlueprintCallable)
+	void Respawn();
+
+	void FellOutOfWorld(const UDamageType & dmgType) override;
+
+	UPROPERTY()
+	float RespawnDelay = 5;
+
+	UPROPERTY()
+	FVector SpawnLocation = FVector(0);
 
 public:
 	/** Returns Ball subobject **/
