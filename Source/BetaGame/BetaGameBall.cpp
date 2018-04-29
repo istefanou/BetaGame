@@ -52,21 +52,16 @@ ABetaGameBall::ABetaGameBall()
 	JumpImpulse = 350000.0f;
 	DashImpulse = 3500000.0f;
 	bCanJump = true; // Start being able to jump
-<<<<<<< HEAD
 
 	max_stamina = 3;
 	current_stamina = 3;
    
-=======
-	stamina = 3;
-
 	this->yrot_offset = 1;
 
 	for (int i = 0; i < 10; i++) {
 		this->accel_diffs[i] = FVector(0.f, 0.f, 0.f);
 	}
 
->>>>>>> Paris-test-branch
 }
 
 void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent)
@@ -86,7 +81,7 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ABetaGameBall::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ABetaGameBall::TouchStopped);
+	//PlayerInputComponent->BindTouch(IE_Released, this, &ABetaGameBall::TouchStopped);
 }
 
 
@@ -104,29 +99,10 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 
 	//TODO: get right and down scale factor from player controller to make the game playable for people who don't want to do full body motions, like while sitting
 
-<<<<<<< HEAD
-	if (bCanJump) {
-		float x_rad = 1 * Input.X;
-		float y_rad = 1 * Input.Y;
-
-		float actual_x = x_rad;
-		if (x_rad < 0.1 && x_rad > -0.1 || !bCanJump) {
-			actual_x = 0;
-		}
-
-		float actual_y = y_rad;
-		if (y_rad < 0.1 && y_rad > -0.1 || !bCanJump) {
-			actual_y = 0;
-		}
-
-		const FVector Torque = FVector(actual_x*RollTorque * 4, actual_y*RollTorque * 4, 0.f);
-		Ball->AddTorqueInRadians(Torque);
-	}
-=======
 	float x_rad = Input.X;
 	float y_rad = Input.Y;
 
-	if (ABetaGameBall::phone_debug_messages && (this->counter) % 10 == 0) {
+	if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tilt x: %f y: %f z: %f"), Input.X, Input.Y, Input.Z));
 	}
 
@@ -137,19 +113,19 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 	if (x_rad != 0 && y_rad != 0) {
 
 		float actual_x = x_rad;
-		if (x_rad < this->xrot_offset + zero_offset && x_rad > this->xrot_offset - zero_offset || !bCanJump) {
+		if (x_rad < xrot_offset + zero_offset && x_rad > xrot_offset - zero_offset || !bCanJump) {
 			actual_x = xrot_offset;
 		}
 
 		float actual_y = y_rad;
-		if (y_rad < this->yrot_offset + zero_offset && y_rad > this->yrot_offset - zero_offset || !bCanJump) {
+		if (y_rad < yrot_offset + zero_offset && y_rad > yrot_offset - zero_offset || !bCanJump) {
 			actual_y = yrot_offset;
 		}
 
 
 		const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocity();
 
-		const FVector target_angular_velocity = FVector(actual_x * this->max_speed_multiplier, actual_y * this->max_speed_multiplier, 0.f);
+		const FVector target_angular_velocity = FVector(actual_x * max_speed_multiplier, actual_y * max_speed_multiplier, 0.f);
 		const float torque_multiplier = 100000;
 
 		float x_max_accel = 0;
@@ -169,7 +145,7 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 		}
 		Torque = FVector(x_max_accel*torque_multiplier, y_max_accel * torque_multiplier, 0.f);\
 			
-			if (ABetaGameBall::phone_debug_messages && (this->counter) % 10 == 0) {
+			if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
 
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
@@ -195,7 +171,6 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 
 	Ball->AddTorqueInRadians(Torque);
 
->>>>>>> Paris-test-branch
 }
 
 void ABetaGameBall::MoveRight(float Val)
@@ -301,6 +276,7 @@ void ABetaGameBall::Jump()
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		current_stamina--;
+		bCanJump = false;
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("NO STAMINA"));
@@ -319,15 +295,6 @@ void ABetaGameBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		bCanJump = false;
-	}
-}
-
-void ABetaGameBall::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	if (bCanJump)
-	{
-		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
-		Ball->AddImpulse(Impulse);
-		bCanJump = false;
+		current_stamina--;
 	}
 }

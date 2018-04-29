@@ -46,7 +46,6 @@ public:
 
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	bool bCanJump;
-<<<<<<< HEAD
 
 	UPROPERTY(BlueprintReadWrite)
 	int current_stamina;
@@ -54,8 +53,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int max_stamina; 
-=======
-	int stamina;
 	bool phone_debug_messages = false;
 
 	double zrot_offset=0;
@@ -71,8 +68,6 @@ public:
 
 	//debug print counter
 	int counter = 0;
-
->>>>>>> Paris-test-branch
 
 protected:
 
