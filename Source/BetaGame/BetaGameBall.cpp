@@ -49,8 +49,13 @@ ABetaGameBall::ABetaGameBall()
 	DashImpulse = 3500000.0f;
 	bCanJump = true; // Start being able to jump
 	stamina = 3;
-	
-   
+
+	this->yrot_offset = 1;
+
+	for (int i = 0; i < 10; i++) {
+		this->accel_diffs[i] = FVector(0.f, 0.f, 0.f);
+	}
+
 }
 
 void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent)
@@ -72,31 +77,94 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ABetaGameBall::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ABetaGameBall::TouchStopped);
 }
+
+
+
+void ABetaGameBall::BeginPlay() {
+	Super::BeginPlay();
+	playercontroller = UGameplayStatics::GetPlayerController(this->GetWorld(), 0);
+	ABetaGameBall::phone_debug_messages = true;
+}
+
 void ABetaGameBall::OnRotationInput(FVector Input)
 {
 
-    static float DEG_TO_RAD = PI / (180.f);
+	static float DEG_TO_RAD = PI / (180.f);
 
-    //TODO: get right and down scale factor from player controller to make the game playable for people who don't want to do full body motions, like while sitting
+	//TODO: get right and down scale factor from player controller to make the game playable for people who don't want to do full body motions, like while sitting
 
-    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Rotation is y_rot: %f x_rot: %f roll_left_rot: %f"), Input.X, Input.Y, Input.Z));
+	float x_rad = Input.X;
+	float y_rad = Input.Y;
+
+	if (ABetaGameBall::phone_debug_messages && (this->counter) % 10 == 0) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tilt x: %f y: %f z: %f"), Input.X, Input.Y, Input.Z));
+	}
+
+	const float zero_offset = 0.1;
+	FVector Torque=FVector(0,0,0);
+
+	//smartphone
+	if (x_rad != 0 && y_rad != 0) {
+
+		float actual_x = x_rad;
+		if (x_rad < this->xrot_offset + zero_offset && x_rad > this->xrot_offset - zero_offset || !bCanJump) {
+			actual_x = xrot_offset;
+		}
+
+		float actual_y = y_rad;
+		if (y_rad < this->yrot_offset + zero_offset && y_rad > this->yrot_offset - zero_offset || !bCanJump) {
+			actual_y = yrot_offset;
+		}
 
 
-    float x_rad = 1 * Input.X;
-    float y_rad = 1 * Input.Y;
+		const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocity();
 
-    float actual_x= x_rad;
-    if (x_rad < 0.1 && x_rad > -0.1 || !bCanJump) {
-        actual_x = 0;
-    }
+		const FVector target_angular_velocity = FVector(actual_x * this->max_speed_multiplier, actual_y * this->max_speed_multiplier, 0.f);
+		const float torque_multiplier = 100000;
 
-    float actual_y = y_rad;
-    if (y_rad < 0.1 && y_rad > -0.1 || !bCanJump) {
-        actual_y = 0;
-    }
+		float x_max_accel = 0;
+		float y_max_accel = 0;
 
-    const FVector Torque = FVector(actual_x*RollTorque*4, actual_y*RollTorque*4, 0.f);
-    Ball->AddTorqueInRadians(Torque);
+		if (target_angular_velocity.X - current_angular_velocity.X > 0 && target_angular_velocity.X>0) {
+			x_max_accel = 1;
+		}
+		if (target_angular_velocity.X - current_angular_velocity.X < 0 && target_angular_velocity.X<0) {
+			x_max_accel = -1;
+		}
+		if (target_angular_velocity.Y - current_angular_velocity.Y > 0 && target_angular_velocity.Y>0) {
+			y_max_accel = 1;
+		}
+		if (target_angular_velocity.Y - current_angular_velocity.Y < 0 && target_angular_velocity.Y<0) {
+			y_max_accel = -1;
+		}
+		Torque = FVector(x_max_accel*torque_multiplier, y_max_accel * torque_multiplier, 0.f);\
+			
+			if (ABetaGameBall::phone_debug_messages && (this->counter) % 10 == 0) {
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
+
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
+			}
+		
+	}
+	//pc
+	else {
+		if (false) {
+			float actual_x = x_rad;
+			if (x_rad < zero_offset && x_rad > -zero_offset || !bCanJump) {
+				actual_x = xrot_offset;
+			}
+
+			float actual_y = y_rad;
+			if (y_rad < zero_offset  && y_rad > -zero_offset && y_rad != 0 || !bCanJump) {
+				actual_y = yrot_offset;
+			}
+
+			Torque = FVector(actual_x, actual_y, 0.f);
+		}
+	}
+
+	Ball->AddTorqueInRadians(Torque);
+
 }
 
 void ABetaGameBall::MoveRight(float Val)
@@ -143,7 +211,6 @@ float delta_sum = 0;
 
 void ABetaGameBall::Tick(float DeltaTime)
 {
-
 	Super::Tick(DeltaTime);
 
 	if (bCanJump) delta_sum += DeltaTime;
@@ -154,19 +221,39 @@ void ABetaGameBall::Tick(float DeltaTime)
 		delta_sum -= 1;
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("STAMINA : %d"), stamina));
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("DELTA TIME: %f"), DeltaTime);
 
 	FVector Tilt;
 	FVector RotationRate;
 	FVector Gravity;
 	FVector Acceleration;
 
-	playercontroller->GetInputMotionState(Tilt, RotationRate, Gravity, Acceleration);
-	//playercontroller->GetInputVectorKeyState()
 
-	UE_LOG(LogTemp, Warning, TEXT("RotationRate X : %f / Y : %f / Z : %f"), RotationRate.X, RotationRate.Y, RotationRate.Z);
-	UE_LOG(LogTemp, Warning, TEXT("Gravity X : %f / Y : %f / Z : %f"), Gravity.X, Gravity.Y, Gravity.Z);
-	UE_LOG(LogTemp, Warning, TEXT("Acceleration X : %f / Y : %f / Z : %f"), Acceleration.X, Acceleration.Y, Acceleration.Z);
+	if (playercontroller != nullptr) {
+		playercontroller->GetInputMotionState(Tilt, RotationRate, Gravity, Acceleration);
+		if(ABetaGameBall::phone_debug_messages && (this->counter)%10==0)
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("RotationRate x: %f y: %f z: %f"), RotationRate.X, RotationRate.Y, RotationRate.Z));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Gravity x: %f y: %f z: %f"), Gravity.X, Gravity.Y, Gravity.Z));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Acceleration x: %f y: %f z: %f"), Acceleration.X, Acceleration.Y, Acceleration.Z));
+			
+			if (addloc % 10 == 0) {
+				int actual_loc = addloc % 10;
+				int previous_loc;
+				if (actual_loc == 0) {
+					previous_loc = 9;
+				}
+				else {
+					previous_loc = actual_loc - 1;
+				}
+			}
+			this->counter++;
+			this->addloc++;
+			if (addloc == 100) {
+				addloc = 0;
+			}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("playercontroller is null"));
+	}
 
 }
 
