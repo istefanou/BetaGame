@@ -29,6 +29,7 @@ public:
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float JumpImpulse;
+	UPROPERTY(EditAnywhere, Category = Ball)
 	float DashImpulse;
 	/** Torque to apply when trying to roll ball */
 	UPROPERTY(EditAnywhere, Category=Ball)

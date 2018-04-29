@@ -28,6 +28,10 @@ ABetaGameBall::ABetaGameBall()
 	Ball->SetNotifyRigidBodyCollision(true);
 	RootComponent = Ball;
 
+	bGenerateOverlapEventsDuringLevelStreaming = true;
+	Ball->bGenerateOverlapEvents = true;
+	Ball->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+
 	// Create a camera boom attached to the root (ball)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm0"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -48,9 +52,9 @@ ABetaGameBall::ABetaGameBall()
 	JumpImpulse = 350000.0f;
 	DashImpulse = 3500000.0f;
 	bCanJump = true; // Start being able to jump
+
 	max_stamina = 3;
 	current_stamina = 3;
-	
    
 }
 
