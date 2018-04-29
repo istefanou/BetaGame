@@ -2,6 +2,10 @@
 
 #pragma once
 
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Public/EngineGlobals.h"
+#include "Engine.h"
+#include "Components/InputComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "BetaGameBall.generated.h"
@@ -25,6 +29,7 @@ class ABetaGameBall : public APawn
 
 public:
 	ABetaGameBall();
+	APlayerController* playercontroller;
 
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
@@ -41,6 +46,7 @@ public:
 
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	bool bCanJump;
+<<<<<<< HEAD
 
 	UPROPERTY(BlueprintReadWrite)
 	int current_stamina;
@@ -48,6 +54,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int max_stamina; 
+=======
+	int stamina;
+	bool phone_debug_messages = false;
+
+	double zrot_offset=0;
+	double xrot_offset=0;
+	double yrot_offset = 0;
+	double max_speed_multiplier = 100;
+
+	//to detect phone dashes
+	FVector accel_diffs[10];
+
+	//location of next value
+	int addloc = 0;
+
+	//debug print counter
+	int counter = 0;
+
+>>>>>>> Paris-test-branch
 
 protected:
 
@@ -60,16 +85,16 @@ protected:
 
 	void MoveRight(float Val);
 
-		void MoveForward(float Val);
+	void MoveForward(float Val);
 
 
 	void BoostLeft(); 
 
 
-void BoostForward(); 
+	void BoostForward(); 
 
 
-void BoostBackwards(); 
+	void BoostBackwards(); 
 
 
 	/** Handle jump action. */
@@ -81,6 +106,7 @@ void BoostBackwards();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	void BeginPlay() override;
 	// End of APawn interface
 
 	/** Handler for when a touch input begins. */
