@@ -30,7 +30,7 @@ ABetaGameBall::ABetaGameBall()
 
 	bGenerateOverlapEventsDuringLevelStreaming = true;
 	Ball->bGenerateOverlapEvents = true;
-	Ball->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	//Ball->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
 	// Create a camera boom attached to the root (ball)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm0"));
