@@ -42,7 +42,13 @@ public:
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	bool bCanJump;
 
-	int stamina;
+	UPROPERTY(BlueprintReadWrite)
+	int current_stamina;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int max_stamina; 
+
 protected:
 
 /** Called for side to side input */
