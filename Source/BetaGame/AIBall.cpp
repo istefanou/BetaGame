@@ -58,7 +58,7 @@ void AAIBall::Tick(float DeltaTime)
 	FVector position = FVector(radius*cos(theta*(PI/180))+startX, radius*sin(theta*(PI / 180))+startY, Ball->GetComponentLocation().Z);
 	//Ball->AddRelativeLocation(position);
 	Ball->SetRelativeLocation(position);
-	Ball->SetPhysicsLinearVelocity()
+	
 	
 }
 
