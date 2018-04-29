@@ -83,7 +83,7 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 void ABetaGameBall::BeginPlay() {
 	Super::BeginPlay();
 	playercontroller = UGameplayStatics::GetPlayerController(this->GetWorld(), 0);
-	ABetaGameBall::phone_debug_messages = true;
+	ABetaGameBall::phone_debug_messages = false;
 }
 
 void ABetaGameBall::OnRotationInput(FVector Input)
