@@ -12,6 +12,8 @@
 #include "Runtime/Engine/Classes/GameFramework/Character.h"
 
 
+const bool phone = false;
+
 ABetaGameBall::ABetaGameBall()
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMesh(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
@@ -55,8 +57,10 @@ ABetaGameBall::ABetaGameBall()
 
 	max_stamina = 3;
 	current_stamina = 3;
-   
-	this->yrot_offset = 1;
+
+	if (phone) {
+		this->yrot_offset = -0.6;
+	}
 
 	for (int i = 0; i < 10; i++) {
 		this->accel_diffs[i] = FVector(0.f, 0.f, 0.f);
@@ -67,10 +71,14 @@ ABetaGameBall::ABetaGameBall()
 void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent)
 {
 	// set up gameplay key bindings
-	PlayerInputComponent->BindVectorAxis("Tilt", this, &ABetaGameBall::OnRotationInput);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::MoveRight);
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::MoveForward);
 
+	if (phone) {
+		PlayerInputComponent->BindVectorAxis("Tilt", this, &ABetaGameBall::OnRotationInput);
+	}
+	else {
+		PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::OnRotationInputx);
+		PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::OnRotationInputy);
+	}
 
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABetaGameBall::Jump);
@@ -89,11 +97,23 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 void ABetaGameBall::BeginPlay() {
 	Super::BeginPlay();
 	playercontroller = UGameplayStatics::GetPlayerController(this->GetWorld(), 0);
-	ABetaGameBall::phone_debug_messages = false;
+	ABetaGameBall::phone_debug_messages = true;
+}
+
+void ABetaGameBall::OnRotationInputx(float xvalue) {
+	this->OnRotationInput(FVector(xvalue, 0, 0));
+}
+
+void ABetaGameBall::OnRotationInputy(float yvalue) {
+	this->OnRotationInput(FVector(0, yvalue, 0));
 }
 
 void ABetaGameBall::OnRotationInput(FVector Input)
 {
+
+	if (!bCanJump) {
+		return;
+	}
 
 	static float DEG_TO_RAD = PI / (180.f);
 
@@ -106,27 +126,30 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tilt x: %f y: %f z: %f"), Input.X, Input.Y, Input.Z));
 	}
 
-	const float zero_offset = 0.1;
-	FVector Torque=FVector(0,0,0);
+	const float zero_offset = 0.2;
+	FVector Torque = FVector(0,0,0);
+
+	float torque_multiplier = 100000000;
 
 	//smartphone
-	if (x_rad != 0 && y_rad != 0) {
+	if (x_rad != 0 || y_rad != 0) {
 
 		float actual_x = x_rad;
-		if (x_rad < xrot_offset + zero_offset && x_rad > xrot_offset - zero_offset || !bCanJump) {
+		if (x_rad < xrot_offset + zero_offset && x_rad > xrot_offset - zero_offset) {
 			actual_x = xrot_offset;
 		}
+		actual_x -= xrot_offset;
 
 		float actual_y = y_rad;
-		if (y_rad < yrot_offset + zero_offset && y_rad > yrot_offset - zero_offset || !bCanJump) {
+		if (y_rad < yrot_offset + zero_offset && y_rad > yrot_offset - zero_offset) {
 			actual_y = yrot_offset;
 		}
-
+		actual_y -= yrot_offset;
 
 		const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocity();
 
 		const FVector target_angular_velocity = FVector(actual_x * max_speed_multiplier, actual_y * max_speed_multiplier, 0.f);
-		const float torque_multiplier = 100000;
+		
 
 		float x_max_accel = 0;
 		float y_max_accel = 0;
@@ -143,13 +166,18 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 		if (target_angular_velocity.Y - current_angular_velocity.Y < 0 && target_angular_velocity.Y<0) {
 			y_max_accel = -1;
 		}
-		Torque = FVector(x_max_accel*torque_multiplier, y_max_accel * torque_multiplier, 0.f);\
-			
-			if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
 
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
-			}
+		if (!phone) {
+			x_max_accel *= -1;
+		}
+
+		Torque = FVector(x_max_accel*torque_multiplier, y_max_accel*torque_multiplier, 0.f);
+			
+
+		if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
+		}
 		
 	}
 	//pc
@@ -165,7 +193,7 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 				actual_y = yrot_offset;
 			}
 
-			Torque = FVector(actual_x, actual_y, 0.f);
+			Torque = FVector(actual_x*torque_multiplier, actual_y*torque_multiplier, 0.f);
 		}
 	}
 
@@ -272,11 +300,12 @@ void ABetaGameBall::Jump()
 
 	if (current_stamina > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), current_stamina);
+		
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		current_stamina--;
 		bCanJump = false;
+		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), current_stamina);
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("NO STAMINA"));
@@ -292,9 +321,11 @@ void ABetaGameBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location
 {
 	if (bCanJump)
 	{
+
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		bCanJump = false;
 		current_stamina--;
+		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), current_stamina);
 	}
 }

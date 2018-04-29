@@ -58,7 +58,7 @@ public:
 	double zrot_offset=0;
 	double xrot_offset=0;
 	double yrot_offset = 0;
-	double max_speed_multiplier = 100;
+	double max_speed_multiplier = 10000;
 
 	//to detect phone dashes
 	FVector accel_diffs[10];
@@ -73,6 +73,8 @@ protected:
 
 /** Called for side to side input */
     void OnRotationInput(FVector Input );
+	void OnRotationInputx(float value);
+	void OnRotationInputy(float value);
 
 	void Tick(float DeltaTime);
 
