@@ -26,6 +26,11 @@ class BETAGAME_API AJumpPadActor : public APadActor
 		void FinishPadAction(UPrimitiveComponent *OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jumpad)
+	float jump_impulse = 7000.0f;
+	
+
 	// Sets default values for this actor's properties
 	AJumpPadActor();
 	void BeginPlay();

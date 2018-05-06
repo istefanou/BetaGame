@@ -11,7 +11,7 @@
 void AJumpPadActor::InitiatePadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Boop Jump")));
-	OtherComp->AddImpulse(FVector(0.0f, 0.0f, 700000.0f));
+	OtherComp->AddImpulse(FVector(0.0f, 0.0f, jump_impulse));
 }
 
 void AJumpPadActor::FinishPadAction(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
