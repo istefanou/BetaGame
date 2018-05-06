@@ -336,3 +336,8 @@ void ABetaGameBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location
 		UE_LOG(LogTemp, Warning, TEXT("STAMINA : %d"), current_stamina);
 	}
 }
+
+FVector ABetaGameBall::GetLoc()
+{
+	return Ball->GetComponentLocation();
+}
