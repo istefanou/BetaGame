@@ -2,6 +2,7 @@
 
 #include "BetaGameBall.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -12,7 +13,6 @@
 #include "Runtime/Engine/Classes/GameFramework/Character.h"
 
 
-const bool phone = false;
 
 ABetaGameBall::ABetaGameBall()
 {
@@ -50,17 +50,14 @@ ABetaGameBall::ABetaGameBall()
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
 	// Set up forces
-	RollTorque = 50000000.0f*(1 / scaleFactor);
-	JumpImpulse = 350000.0f;
-	DashImpulse = 3500000.0f;
+	RollTorque = 250000.0f;
+	JumpImpulse = 7000.0f;
+	DashImpulse = 10000.0f;
 	bCanJump = true; // Start being able to jump
 
 	max_stamina = 3;
 	current_stamina = 3;
 
-	if (phone) {
-		this->yrot_offset = -0.6;
-	}
 
 	for (int i = 0; i < 10; i++) {
 		this->accel_diffs[i] = FVector(0.f, 0.f, 0.f);
@@ -75,10 +72,8 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 	if (phone) {
 		PlayerInputComponent->BindVectorAxis("Tilt", this, &ABetaGameBall::OnRotationInput);
 	}
-	else {
-		PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::OnRotationInputx);
-		PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::OnRotationInputy);
-	}
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::OnRotationInputx);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::OnRotationInputy);
 
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABetaGameBall::Jump);
@@ -98,14 +93,40 @@ void ABetaGameBall::BeginPlay() {
 	Super::BeginPlay();
 	playercontroller = UGameplayStatics::GetPlayerController(this->GetWorld(), 0);
 	ABetaGameBall::phone_debug_messages = true;
+
+
+	if (phone) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Gamemode is phone")));
+
+		torque_multiplier = torque_multiplier / 2.0f;
+
+		this->yrot_offset = -0.85f;
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Gamemode is pc")));
+
+		this->yrot_offset = 0;
+	}
 }
 
 void ABetaGameBall::OnRotationInputx(float xvalue) {
-	this->OnRotationInput(FVector(xvalue, 0, 0));
+
+	if (!bCanJump) {
+		return;
+	}
+
+
+	x_movement = xvalue;
 }
 
 void ABetaGameBall::OnRotationInputy(float yvalue) {
-	this->OnRotationInput(FVector(0, yvalue, 0));
+
+	if (!bCanJump) {
+		return;
+	}
+
+
+	y_movement = yvalue;
 }
 
 void ABetaGameBall::OnRotationInput(FVector Input)
@@ -115,89 +136,14 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 		return;
 	}
 
-	static float DEG_TO_RAD = PI / (180.f);
-
-	//TODO: get right and down scale factor from player controller to make the game playable for people who don't want to do full body motions, like while sitting
-
-	float x_rad = Input.X;
-	float y_rad = Input.Y;
-
-	if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
+	
+	if (ABetaGameBall::phone_debug_messages && (counter) % 100 == 0) {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tilt x: %f y: %f z: %f"), Input.X, Input.Y, Input.Z));
 	}
 
-	const float zero_offset = 0.2;
-	FVector Torque = FVector(0,0,0);
+	x_movement = Input.X;
+	y_movement = Input.Y;
 
-	float torque_multiplier = 100000000;
-
-	//smartphone
-	if (x_rad != 0 || y_rad != 0) {
-
-		float actual_x = x_rad;
-		if (x_rad < xrot_offset + zero_offset && x_rad > xrot_offset - zero_offset) {
-			actual_x = xrot_offset;
-		}
-		actual_x -= xrot_offset;
-
-		float actual_y = y_rad;
-		if (y_rad < yrot_offset + zero_offset && y_rad > yrot_offset - zero_offset) {
-			actual_y = yrot_offset;
-		}
-		actual_y -= yrot_offset;
-
-		const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocity();
-
-		const FVector target_angular_velocity = FVector(actual_x * max_speed_multiplier, actual_y * max_speed_multiplier, 0.f);
-		
-
-		float x_max_accel = 0;
-		float y_max_accel = 0;
-
-		if (target_angular_velocity.X - current_angular_velocity.X > 0 && target_angular_velocity.X>0) {
-			x_max_accel = 1;
-		}
-		if (target_angular_velocity.X - current_angular_velocity.X < 0 && target_angular_velocity.X<0) {
-			x_max_accel = -1;
-		}
-		if (target_angular_velocity.Y - current_angular_velocity.Y > 0 && target_angular_velocity.Y>0) {
-			y_max_accel = 1;
-		}
-		if (target_angular_velocity.Y - current_angular_velocity.Y < 0 && target_angular_velocity.Y<0) {
-			y_max_accel = -1;
-		}
-
-		if (!phone) {
-			x_max_accel *= -1;
-		}
-
-		Torque = FVector(x_max_accel*torque_multiplier, y_max_accel*torque_multiplier, 0.f);
-			
-
-		if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
-		}
-		
-	}
-	//pc
-	else {
-		if (false) {
-			float actual_x = x_rad;
-			if (x_rad < zero_offset && x_rad > -zero_offset || !bCanJump) {
-				actual_x = xrot_offset;
-			}
-
-			float actual_y = y_rad;
-			if (y_rad < zero_offset  && y_rad > -zero_offset && y_rad != 0 || !bCanJump) {
-				actual_y = yrot_offset;
-			}
-
-			Torque = FVector(actual_x*torque_multiplier, actual_y*torque_multiplier, 0.f);
-		}
-	}
-
-	Ball->AddTorqueInRadians(Torque);
 
 }
 
@@ -265,6 +211,67 @@ void ABetaGameBall::Tick(float DeltaTime)
 	FVector Gravity;
 	FVector Acceleration;
 
+
+	FVector Torque = FVector(0, 0, 0);
+
+	static float DEG_TO_RAD = PI / (180.f);
+
+	// fix x axis to zero around a small area
+	float actual_x = x_movement;
+	
+	if (actual_x < xrot_offset + dead_zone_offset && actual_x > xrot_offset - dead_zone_offset) {
+		actual_x = xrot_offset;
+	}
+	actual_x -= xrot_offset;
+
+	if (flip_x_movement ^ phone) {
+		actual_x = -actual_x;
+	}
+
+	// fix y axis to zero around a small area and when the viewer tilts the phone a bit
+	float actual_y = y_movement;
+	
+	if (actual_y < yrot_offset + dead_zone_offset && actual_y > yrot_offset - dead_zone_offset) {
+		actual_y = yrot_offset;
+	}
+	actual_y -= yrot_offset;
+
+	if (flip_y_movement) {
+		actual_y = -actual_y;
+	}
+
+	// get the speed we have and we want to reach
+	const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocityInDegrees();
+	const FVector target_angular_velocity = FVector(actual_x * max_speed_multiplier, actual_y * max_speed_multiplier, 0.f);
+
+
+	//the force is the difference of the above two limited to [-10,+10]
+	float x_max_accel = target_angular_velocity.X - current_angular_velocity.X;
+	x_max_accel = FMath::Min(1000.0f, x_max_accel);
+	x_max_accel = FMath::Max(-1000.0f, x_max_accel);
+
+	float y_max_accel = target_angular_velocity.Y - current_angular_velocity.Y;
+	y_max_accel = FMath::Min(1000.0f, y_max_accel);
+	y_max_accel = FMath::Max(-1000.0f, y_max_accel);
+
+	Torque = FVector(x_max_accel * torque_multiplier * DeltaTime, y_max_accel*torque_multiplier * DeltaTime, 0.f);
+
+
+	if (false && ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("actual x: %f actual y: %f "), actual_x, actual_y));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("current Velocity x: %f y: %f z: %f"), current_angular_velocity.X, current_angular_velocity.Y, current_angular_velocity.Z));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("actual xacel: %f actual yacel: %f "), x_max_accel, y_max_accel));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Torque aplied x: %f y: %f z: %f"), Torque.X, Torque.Y, Torque.Z));
+	}
+
+
+	x_movement = 0;
+	y_movement = 0;
+
+	if (bCanJump) {
+		Ball->AddTorqueInRadians(Torque);
+	}
 
 	if (playercontroller != nullptr) {
 		playercontroller->GetInputMotionState(Tilt, RotationRate, Gravity, Acceleration);
