@@ -59,16 +59,6 @@ void AAIBall::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (isStart==false)return;
-	// ...
-	
-	/*if (follow == false) {
-		if (notMove == false)counter += 1;
-		counter %= 360;
-		float time = DeltaTime * 10;
-		int isPlayerInRange = detectPlayer(DeltaTime);
-		if (isPlayerInRange == false)autoMovement(DeltaTime);
-		//else moveTowardsPlayer(DeltaTime);
-	}*/
 
 
 	int isPlayerInRange = detectPlayer(DeltaTime);
@@ -90,32 +80,6 @@ void AAIBall::Tick(float DeltaTime)
 
 	//defense strategy
 	//UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f, Z: %f"), PlayerBall->GetLoc().X,PlayerBall->GetLoc().Y, PlayerBall->GetLoc().Z);
-	/*
-	FVector playerLoc = PlayerBall->GetLoc();
-
-	float dist = FVector::Dist(playerLoc, Ball->GetComponentLocation());
-
-	FVector posVec = position*time;
-	
-
-	FVector pos2 = Ball->GetComponentLocation();
-
-	if (dist < 400) {
-		notMove = true;
-
-		pos2 += dist / 2 * normalizeVec(playerLoc-Ball->GetComponentLocation());
-
-		posVec = pos2*time;
-		
-	}
-	else {
-		notMove = false;
-	}
-	posVec.Z = Ball->GetPhysicsLinearVelocity().Z;
-	
-	if(notMove==false)Ball->SetAllPhysicsLinearVelocity(posVec);
-	else Ball->SetAllPhysicsLinearVelocity(posVec);*/
-
 	
 	FVector InputVectorNormal = GetLastMovementInputVector().GetClampedToMaxSize(1.0f);
 	FVector Velocity = Ball->GetPhysicsLinearVelocity();
