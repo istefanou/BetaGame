@@ -40,10 +40,6 @@ public:
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float RollTorque;
 
-	/** Torque to apply when trying to roll ball */
-	UPROPERTY(EditAnywhere, Category=Ball)
-	float scaleFactor=2.0;
-
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	bool bCanJump;
 
@@ -53,12 +49,38 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int max_stamina; 
+
+
 	bool phone_debug_messages = false;
 
-	double zrot_offset=0;
-	double xrot_offset=0;
-	double yrot_offset = 0;
-	double max_speed_multiplier = 10000;
+
+	float zrot_offset=0.f;
+	float xrot_offset= 0.f;
+	float yrot_offset= 0.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float x_movement = 0.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float y_movement = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float max_speed_multiplier = 10000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float torque_multiplier = 100000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float dead_zone_offset = 0.10f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool flip_x_movement = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool flip_y_movement = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool phone = true;
 
 	//to detect phone dashes
 	FVector accel_diffs[10];
@@ -67,7 +89,7 @@ public:
 	int addloc = 0;
 
 	//debug print counter
-	int counter = 0;
+	long counter = 0;
 
 protected:
 
