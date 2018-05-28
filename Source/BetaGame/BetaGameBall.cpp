@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
+#include "Runtime/Core/Public/GenericPlatform/GenericPlatformMath.h"
 #include "Runtime/Engine/Classes/GameFramework/PawnMovementComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/Character.h"
 
@@ -72,8 +73,8 @@ void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInput
 	if (phone) {
 		PlayerInputComponent->BindVectorAxis("Tilt", this, &ABetaGameBall::OnRotationInput);
 	}
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::OnRotationInputx);
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::OnRotationInputy);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABetaGameBall::OnSimulatedRotationInputx);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABetaGameBall::OnSimulatedRotationInputy);
 
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABetaGameBall::Jump);
@@ -115,8 +116,7 @@ void ABetaGameBall::OnRotationInputx(float xvalue) {
 		return;
 	}
 
-
-	x_movement = xvalue;
+	x_rotation = xvalue;
 }
 
 void ABetaGameBall::OnRotationInputy(float yvalue) {
@@ -126,8 +126,36 @@ void ABetaGameBall::OnRotationInputy(float yvalue) {
 	}
 
 
-	y_movement = yvalue;
+	y_rotation = yvalue;
 }
+
+double simulated_rotation_x = 0;
+
+double simulated_x = 0;
+
+void ABetaGameBall::OnSimulatedRotationInputx(float xvalue) {
+
+	if (!bCanJump) {
+		return;
+	}
+
+	simulated_x += xvalue;
+	x_rotation = simulated_x;
+}
+
+double simulated_y = 0;
+
+void ABetaGameBall::OnSimulatedRotationInputy(float yvalue) {
+
+	if (!bCanJump) {
+		return;
+	}
+
+	simulated_y += yvalue;
+
+	y_rotation = simulated_y;
+}
+
 
 void ABetaGameBall::OnRotationInput(FVector Input)
 {
@@ -141,8 +169,8 @@ void ABetaGameBall::OnRotationInput(FVector Input)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tilt x: %f y: %f z: %f"), Input.X, Input.Y, Input.Z));
 	}
 
-	x_movement = Input.X;
-	y_movement = Input.Y;
+	x_rotation = Input.X;
+	y_rotation = Input.Y;
 
 
 }
@@ -197,6 +225,10 @@ void ABetaGameBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	simulated_x -= simulated_x / 10.0;
+	simulated_y -= simulated_y / 10.0;
+
 	if (bCanJump) delta_sum += DeltaTime;
 	if (delta_sum > 1 && bCanJump)
 	{
@@ -217,7 +249,7 @@ void ABetaGameBall::Tick(float DeltaTime)
 	static float DEG_TO_RAD = PI / (180.f);
 
 	// fix x axis to zero around a small area
-	float actual_x = x_movement;
+	float actual_x = x_rotation;
 	
 	if (actual_x < xrot_offset + dead_zone_offset && actual_x > xrot_offset - dead_zone_offset) {
 		actual_x = xrot_offset;
@@ -229,7 +261,7 @@ void ABetaGameBall::Tick(float DeltaTime)
 	}
 
 	// fix y axis to zero around a small area and when the viewer tilts the phone a bit
-	float actual_y = y_movement;
+	float actual_y = y_rotation;
 	
 	if (actual_y < yrot_offset + dead_zone_offset && actual_y > yrot_offset - dead_zone_offset) {
 		actual_y = yrot_offset;
@@ -240,9 +272,25 @@ void ABetaGameBall::Tick(float DeltaTime)
 		actual_y = -actual_y;
 	}
 
+	int x_sign=0;
+	if (actual_x > 0) {
+		x_sign = 1;
+	}
+	else {
+		x_sign = -1;
+	}
+
+	int y_sign = 0;
+	if (actual_y > 0) {
+		y_sign = 1;
+	}
+	else {
+		y_sign = -1;
+	}
+
 	// get the speed we have and we want to reach
 	const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocityInDegrees();
-	const FVector target_angular_velocity = FVector(actual_x * max_speed_multiplier, actual_y * max_speed_multiplier, 0.f);
+	const FVector target_angular_velocity = FVector(x_sign * pow(x_sign * actual_x, x_movement_multiplier) * max_speed_multiplier, y_sign * pow(y_sign * actual_y, y_movement_multiplier) * max_speed_multiplier, 0.f);
 
 
 	//the force is the difference of the above two limited to [-10,+10]
@@ -257,7 +305,9 @@ void ABetaGameBall::Tick(float DeltaTime)
 	Torque = FVector(x_max_accel * torque_multiplier * DeltaTime, y_max_accel*torque_multiplier * DeltaTime, 0.f);
 
 
-	if (false && ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
+	if (ABetaGameBall::phone_debug_messages && (counter) % 10 == 0) {
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("simulated x: %f simulated y: %f "), simulated_x, simulated_y));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("actual x: %f actual y: %f "), actual_x, actual_y));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("current Velocity x: %f y: %f z: %f"), current_angular_velocity.X, current_angular_velocity.Y, current_angular_velocity.Z));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Target Velocity x: %f y: %f z: %f"), target_angular_velocity.X, target_angular_velocity.Y, target_angular_velocity.Z));
@@ -266,8 +316,8 @@ void ABetaGameBall::Tick(float DeltaTime)
 	}
 
 
-	x_movement = 0;
-	y_movement = 0;
+	x_rotation = 0;
+	y_rotation = 0;
 
 	if (bCanJump) {
 		Ball->AddTorqueInRadians(Torque);
@@ -308,6 +358,10 @@ void ABetaGameBall::Jump()
 	if (current_stamina > 0)
 	{
 		
+		FVector current_linear_velocity = Ball->GetPhysicsLinearVelocity();
+		current_linear_velocity.Z = 0;
+		Ball->SetPhysicsLinearVelocity(current_linear_velocity);
+
 		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		current_stamina--;
