@@ -51,7 +51,7 @@ public:
 	int max_stamina; 
 
 
-	bool phone_debug_messages = false;
+	bool phone_debug_messages = true;
 
 
 	float zrot_offset=0.f;
@@ -59,10 +59,10 @@ public:
 	float yrot_offset= 0.f;
 
 	UPROPERTY(VisibleAnywhere)
-	float x_movement = 0.f;
+	float x_rotation = 0.f;
 
 	UPROPERTY(VisibleAnywhere)
-	float y_movement = 0.f;
+	float y_rotation = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
 	float max_speed_multiplier = 10000.0f;
@@ -71,7 +71,13 @@ public:
 	float torque_multiplier = 100000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
-	float dead_zone_offset = 0.10f;
+	float x_movement_multiplier = 1.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float y_movement_multiplier = 1.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float dead_zone_offset = 0.0001f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
 	bool flip_x_movement = true;
@@ -80,7 +86,7 @@ public:
 	bool flip_y_movement = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
-	bool phone = true;
+	bool phone = false;
 
 	//to detect phone dashes
 	FVector accel_diffs[10];
@@ -97,6 +103,8 @@ protected:
     void OnRotationInput(FVector Input );
 	void OnRotationInputx(float value);
 	void OnRotationInputy(float value);
+	void OnSimulatedRotationInputx(float value);
+	void OnSimulatedRotationInputy(float value);
 
 	void Tick(float DeltaTime);
 
