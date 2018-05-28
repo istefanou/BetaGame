@@ -2,6 +2,10 @@
 
 #pragma once
 
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Public/EngineGlobals.h"
+#include "Engine.h"
+#include "Components/InputComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "BetaGameBall.generated.h"
@@ -25,6 +29,7 @@ class ABetaGameBall : public APawn
 
 public:
 	ABetaGameBall();
+	APlayerController* playercontroller;
 
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
@@ -34,10 +39,6 @@ public:
 	/** Torque to apply when trying to roll ball */
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float RollTorque;
-
-	/** Torque to apply when trying to roll ball */
-	UPROPERTY(EditAnywhere, Category=Ball)
-	float scaleFactor=2.0;
 
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	bool bCanJump;
@@ -49,10 +50,53 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int max_stamina; 
 
+
+	bool phone_debug_messages = false;
+
+
+	float zrot_offset=0.f;
+	float xrot_offset= 0.f;
+	float yrot_offset= 0.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float x_movement = 0.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float y_movement = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float max_speed_multiplier = 10000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float torque_multiplier = 100000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	float dead_zone_offset = 0.10f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool flip_x_movement = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool flip_y_movement = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MovementOptions)
+	bool phone = true;
+
+	//to detect phone dashes
+	FVector accel_diffs[10];
+
+	//location of next value
+	int addloc = 0;
+
+	//debug print counter
+	long counter = 0;
+
 protected:
 
 /** Called for side to side input */
     void OnRotationInput(FVector Input );
+	void OnRotationInputx(float value);
+	void OnRotationInputy(float value);
 
 	void Tick(float DeltaTime);
 
@@ -60,16 +104,16 @@ protected:
 
 	void MoveRight(float Val);
 
-		void MoveForward(float Val);
+	void MoveForward(float Val);
 
 
 	void BoostLeft(); 
 
 
-void BoostForward(); 
+	void BoostForward(); 
 
 
-void BoostBackwards(); 
+	void BoostBackwards(); 
 
 
 	/** Handle jump action. */
@@ -81,6 +125,7 @@ void BoostBackwards();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	void BeginPlay() override;
 	// End of APawn interface
 
 	/** Handler for when a touch input begins. */
@@ -96,4 +141,6 @@ public:
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 	/** Returns Camera subobject **/
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
+
+	FVector GetLoc();
 };
