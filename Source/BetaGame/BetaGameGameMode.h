@@ -13,6 +13,9 @@ class ABetaGameGameMode : public AGameModeBase
 
 public:
 	ABetaGameGameMode();
+	void BeginPlay();
+	void Restart();
+	UWorld* myWorld;
 };
 
 

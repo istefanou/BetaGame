@@ -62,16 +62,11 @@ ABetaGameBall::ABetaGameBall()
 	max_stamina = 3;
 	current_stamina = 3;
 
-<<<<<<< HEAD
-	OnDestroyed.AddDynamic(this, &ABetaGameBall::OnDeath);
-   
-=======
 
 	for (int i = 0; i < 10; i++) {
 		this->accel_diffs[i] = FVector(0.f, 0.f, 0.f);
 	}
 
->>>>>>> master
 }
 
 void ABetaGameBall::SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent)
@@ -402,33 +397,4 @@ void ABetaGameBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location
 FVector ABetaGameBall::GetLoc()
 {
 	return Ball->GetComponentLocation();
-}
-
-void ABetaGameBall::OnDeath(AActor* Act)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Dead\n"));
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("DEAD")));
-
-	FTimerHandle UnusedHandle;
-	SpawnLocation = FVector(0);
-	UWorld* myWorld = GetWorld();
-	ABetaGameBall* RespawnedActor = myWorld->SpawnActor<ABetaGameBall>(ABetaGameBall::StaticClass());
-	RespawnedActor->SetActorTransform(FTransform(SpawnLocation));
-	GetWorldTimerManager().SetTimer(UnusedHandle, [](ABetaGameBall* RespawnedActor) {
-		RespawnedActor->Respawn();
-	}, RespawnDelay, 1);
-}
-
-void ABetaGameBall::Respawn()
-{
-
-	UE_LOG(LogTemp, Warning, TEXT("Respawn\n"));
-
-}
-
-void ABetaGameBall::FellOutOfWorld(const class UDamageType & dmgType)
-{
-	//Super::FellOutOfWorld(dmgType);
-	//OnDeath(this);
 }
