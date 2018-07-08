@@ -14,7 +14,7 @@ class AAIBall : public APawn
 	GENERATED_BODY()
 
 	/** StaticMesh used for the ball */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Ball, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* Ball;
 
 	UPROPERTY(EditDefaultsOnly, Category = Ball)
@@ -24,10 +24,23 @@ public:
 	// Sets default values for this component's properties
 	AAIBall();
 
-	float startX;
-	float startY;
 	bool isStart = false;
 	int counter = 0;
+	bool notMove = false;
+	bool follow = false;
+
+	UPROPERTY(EditAnywhere, Category = Ball)
+	float factor = 800;
+
+	UPROPERTY(EditAnywhere, Category = Ball)
+	float centerX = 0;
+
+	UPROPERTY(EditAnywhere, Category = Ball)
+	float centerY = 0;
+
+	UPROPERTY(EditAnywhere, Category = Ball)
+	float radius = 400;
+
 
 protected:
 	// Called when the game starts
@@ -42,5 +55,19 @@ public:
 
 	void BoostForward();
 	void BoostBackwards();
+
+	float calcDistance(FVector v1, FVector v2);
+	FVector normalizeVec(FVector v);
+
+	void autoMovement(float delta);
+
+	bool detectPlayer(float delta);
+
+	bool detectArea(float delta, float x, float y);
+
+	void moveTowardsPlayer(float delta);
+
+	UFUNCTION(BlueprintCallable)
+	void InitializeBall();
 	
 };

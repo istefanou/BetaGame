@@ -31,7 +31,7 @@ class BETAGAME_API ATeleporterPadActor : public APadActor
 	UFUNCTION()
 		void FinishPadAction(UPrimitiveComponent *OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
 public:
 	// Sets default values for this actor's properties
