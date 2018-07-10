@@ -160,4 +160,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
 
 	FVector GetLoc();
+	void FellOutOfWorld(const UDamageType & dmgType);
+	void OnClusterMarkedAsPendingKill();
 };

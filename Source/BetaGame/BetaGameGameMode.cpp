@@ -1,6 +1,7 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "BetaGameGameMode.h"
+#include "GameFramework/Actor.h"
 #include "BetaGameBall.h"
 
 ABetaGameGameMode::ABetaGameGameMode()
@@ -16,10 +17,17 @@ void ABetaGameGameMode::BeginPlay() {
 	myWorld = GetWorld();
 	myWorld->GetFirstPlayerController();
 	//ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	ABetaGameBall* myBall = Cast<ABetaGameBall>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	myBall->OnDestroyed.AddDynamic(this, &ABetaGameGameMode::Restart);
+	//UGameplayStatics::GetPlayerPawn(...);
+	//(ABetaGameGameMode*)GetWorld()->GetAuthGameMode();
+	ABetaGameBall* myBall = Cast<ABetaGameBall>(myWorld->GetFirstPlayerController()->GetPawn());
+	//myBall->OnDestroyed.AddDynamic(this, &ABetaGameGameMode::Restart);
+	//myBall->OnClusterMarkedAsPendingKill.AddDynamic(this, &ABetaGameGameMode::Restart);
 }
 
-void ABetaGameGameMode::Restart() {
-	RestartPlayer();
+void ABetaGameGameMode::Restart(AActor* Act) {
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("DeadDeadDeadDeadDead")));
+
+	myWorld = GetWorld();
+	RestartPlayer(myWorld->GetFirstPlayerController());
 }

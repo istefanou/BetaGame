@@ -14,6 +14,7 @@
 #include "Runtime/Engine/Classes/GameFramework/Character.h"
 #include <Runtime/Engine/Classes/GameFramework/Actor.h>
 #include <Runtime/Engine/Public/TimerManager.h>
+#include "BetaGameGameMode.h"
 #include "Engine.h"
 
 
@@ -397,4 +398,17 @@ void ABetaGameBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location
 FVector ABetaGameBall::GetLoc()
 {
 	return Ball->GetComponentLocation();
+}
+
+void ABetaGameBall::FellOutOfWorld(const class UDamageType & dmgType)
+{
+	//this->Destroy();
+	GetWorld()->DestroyActor(this);
+	//Super::FellOutOfWorld(dmgType);
+	//OnDeath(this);
+}
+
+void ABetaGameBall::OnClusterMarkedAsPendingKill()
+{
+	((ABetaGameGameMode*)GetWorld()->GetAuthGameMode())->Restart(this);
 }
