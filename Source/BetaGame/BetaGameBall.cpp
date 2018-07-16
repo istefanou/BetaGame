@@ -195,8 +195,6 @@ void ABetaGameBall::Boost(FVector direction)
 {
 	if (current_stamina > 0)
 	{
-
-
 		Ball->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
 		FVector dash_vector = FVector(DashImpulse*direction.X, DashImpulse*direction.Y, DashImpulse*direction.Z);
 		Ball->AddImpulse(toDirectionalVector(dash_vector));
@@ -277,6 +275,11 @@ void ABetaGameBall::Tick(float DeltaTime)
 
 	// get the speed we have
 	const FVector current_angular_velocity = Ball->GetPhysicsAngularVelocity();
+
+	if (phone) {
+		actual_x *= 16;
+		actual_y *= 16;
+	}
 
 	// and the speed we want to reach modified to be logarithmic on the phone
 	if (actual_x >= 0) {
